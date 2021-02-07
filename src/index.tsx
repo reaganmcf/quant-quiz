@@ -3,16 +3,16 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux'
 import './index.css';
 
-import App from './components/App/App';
+import App from './components/App';
 
 import { createAppStore } from './store'
-const appStore = createAppStore()
 
+const appStore = createAppStore()
 const rootElement = document.getElementById("root")
 
 render(
   <Provider store={appStore}>
-    <App/>
+      <App/>
   </Provider>,
   rootElement
 )

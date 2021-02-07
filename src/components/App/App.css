@@ -1,7 +1,10 @@
 .App {
   text-align: center;
-  background-color: gray;
+  /* background-color: gray; */
   min-height: 90vh;
+  width: 500px;
+  border-radius: 10px;
+  box-shadow: #bbbbbb 10px 10px 10px;
 }
 
 .App-logo {
