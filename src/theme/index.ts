@@ -27,10 +27,9 @@ const themeDark: ITheme = {
     text: colors.white
 }
 
-function theme(): ITheme { 
-    let mode = localStorage.getItem("dark") === "true"
-    if(mode) return themeDark;
-    return themeLight;
+const themes = {
+    themeDark,
+    themeLight
 }
 
-export default theme
+export default themes;
