@@ -15,7 +15,7 @@ export const Button: React.FC<Props> = (props: Props) => {
     color: ${theme().text};
     border-radius: 1000px;
     padding: 10px 20px 10px 20px;
-    max-width: 30%;
+    max-width: 40%;
     margin: auto;
     text-align: center;
     justify-content: center;
