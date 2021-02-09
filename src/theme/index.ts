@@ -27,9 +27,11 @@ const themeDark: ITheme = {
     text: colors.white
 }
 
-const themes = {
-    themeDark,
-    themeLight
-}
+// const themes = {
+//     themeDark,
+//     themeLight
+// }
 
-export default themes;
+const theme = () => themeDark;
+
+export default theme;
