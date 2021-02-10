@@ -2,8 +2,10 @@ import { randomInt } from 'crypto';
 import { format } from 'path';
 import * as React from 'react';
 import Chart from 'react-google-charts';
+import { chartDefaultProps } from 'react-google-charts/dist/default-props';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch } from 'redux';
+import { Button } from '../../components/Button';
 import { ScreenContainer } from '../../components/SceneContainer';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { IAppState } from '../../store';
@@ -17,18 +19,84 @@ export const GameScreen: React.FC = () => {
   );
   const dispatch: Dispatch<any> = useDispatch();
 
+  interface IAnswerState {
+    answered: boolean;
+    guess?: 'sell' | 'buy';
+    didWin?: boolean;
+  }
+  const [answerState, setAnsweredState] = React.useState<IAnswerState>({
+    answered: false,
+  });
+  const [currentTick, setTicks] = React.useState(0);
+
   // load stock data
   React.useEffect(() => {
     if (gameState.currentData!.data.length === 0)
       dispatch(getRandomStockData());
   });
 
-  if (gameState.currentData!.data.length > 0) {
+  // get guess price and final price
+  const SLICE_END = 25;
+  const MAX_TICK = 25;
+  var guess_price: ICandleEntry, final_price: ICandleEntry;
+  if (gameState.currentData && gameState.currentData.data.length > 0) {
+    guess_price = gameState.currentData.data[SLICE_END - 1];
+    final_price = gameState.currentData.data[SLICE_END - 1 + MAX_TICK];
+  }
+  setTimeout(() => {
+    if (answerState.answered && currentTick < MAX_TICK) {
+      setTicks(currentTick + 1);
+    } else if (currentTick === MAX_TICK) {
+      setTicks(currentTick + 1);
+      // let winState;
+      // if (answerState.guess === 'buy') {
+      //   winState = final_price.last >= guess_price.last;
+      // } else {
+      //   winState = final_price.last <= guess_price.last;
+      // }
+      // setAnsweredState({
+      //   ...answerState,
+      //   didWin: winState,
+      // });
+      // console.log(answerState);
+    }
+  }, 50);
+
+  // handle sell
+  const handleSell = () => {
+    guess_price = gameState.currentData!.data[SLICE_END - 1];
+    final_price = gameState.currentData!.data[SLICE_END - 1 + MAX_TICK];
+    setAnsweredState({
+      answered: true,
+      guess: 'sell',
+      didWin: final_price.close < guess_price.close,
+    });
+    console.log(final_price);
+    console.log(guess_price);
+  };
+
+  // handle buy
+  const handleBuy = () => {
+    // guess_price = gameState.currentData!.data[SLICE_END - 1];
+    // final_price = gameState.currentData!.data[SLICE_END - 1 + MAX_TICK];
+    setAnsweredState({
+      answered: true,
+      guess: 'buy',
+      didWin: final_price.close >= guess_price.close,
+    });
+  };
+
+  // conditional render
+  if (gameState.currentData && gameState.currentData.data.length > 0) {
     // Pick a random slice of 25 or more candles
-    let randomSlice = gameState.currentData!.data.slice(100, 140);
+    let randomSlice = gameState.currentData!.data.slice(
+      0,
+      !answerState.answered ? SLICE_END : SLICE_END + currentTick
+    );
+    // guess_price = randomSlice[SLICE_END - 1];
+    // final_price = randomSlice[randomSlice.length - 1];
     let formattedData = Array(randomSlice.length + 1);
-    formattedData[0] = ['day', 'a', 'b', 'c', 'd'];
-    console.log(randomSlice);
+    formattedData[0] = ['day', 'low', 'open', 'close', 'high'];
 
     randomSlice.forEach((entry: ICandleEntry, index: number) => {
       let newrow = [
@@ -48,20 +116,28 @@ export const GameScreen: React.FC = () => {
     return (
       <ScreenContainer>
         <ScreenHeader
-          text="$AAPL"
+          text={'$' + gameState.currentData!.ticker}
           animationIn="bounceInDown"
           animationOut="bounceOutUp"
+          style={
+            !answerState.answered
+              ? {
+                  color: 'transparent',
+                  textShadow: '0 0 30px #FF5A00',
+                }
+              : {}
+          }
         />
         <Chart
           style={{
-            padding: '10px',
+            padding: 10,
             margin: 'auto',
           }}
           width={'95%'}
           height={350}
           chartType="CandlestickChart"
           loader={
-            <div>
+            <div style={{ textAlign: 'center' }}>
               <p>Loading Chart...</p>
             </div>
           }
@@ -77,16 +153,43 @@ export const GameScreen: React.FC = () => {
             colors: ['black'],
           }}
         />
+        {!answerState.answered ? (
+          <div style={{ padding: 20, textAlign: 'center' }}>
+            <Button
+              style={{ display: 'inline', marginRight: 20 }}
+              small
+              nolink
+              onClick={handleSell}
+              backgroundColor={theme().red}
+            >
+              Sell
+            </Button>
+            <Button
+              style={{ display: 'inline' }}
+              small
+              nolink
+              onClick={handleBuy}
+              backgroundColor={theme().green}
+            >
+              Buy
+            </Button>
+          </div>
+        ) : answerState.didWin && currentTick === MAX_TICK ? (
+          <p>You won!</p>
+        ) : (
+          <p>You lost</p>
+        )}
       </ScreenContainer>
     );
   } else {
     return (
       <ScreenContainer>
         <ScreenHeader
-          text="$AAPL"
+          text={'Loading...'}
           animationIn="bounceInDown"
           animationOut="bounceOutUp"
         />
+        <div style={{ height: '350px' }} />
       </ScreenContainer>
     );
   }

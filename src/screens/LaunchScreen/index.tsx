@@ -33,6 +33,7 @@ export const LaunchScreen: React.FC = () => {
           isVisible={true}
         >
           <Button
+            small
             link={<CustomLink to="/leaderboard">Leaderboard</CustomLink>}
           />
         </Animated>

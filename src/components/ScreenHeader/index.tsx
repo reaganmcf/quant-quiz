@@ -9,6 +9,7 @@ type Props = {
   animationIn: AnimationString;
   animationOut: AnimationString;
   text: string;
+  style?: object;
 };
 
 export const ScreenHeader: React.FC<Props> = (props: Props) => {
@@ -25,7 +26,7 @@ export const ScreenHeader: React.FC<Props> = (props: Props) => {
     //   isVisible={true}
     // >
     <Title>
-      <p>{props.text}</p>
+      <p style={props.style}>{props.text}</p>
     </Title>
     // </Animated>
   );
